@@ -109,6 +109,12 @@ function DatasetOverview({
   } = featureSet || {};
 
   const {
+    originalInsights,
+    originalMetadata,
+    originalStatistics,
+  } = featureSetOriginal || {};
+
+  const {
     columns: columnsAll,
     rows: rowsAll,
   } = featureSet?.sample_data || {};
@@ -134,6 +140,21 @@ function DatasetOverview({
     .map(([k, v]: [string, ColumnTypeEnum]) => ({ columnType: v, uuid: k }));
 
   const qualityMetrics = statistics ? createMetricsSample(statistics, columnTypes) : null;
+  const originalQualityMetrics = originalStatistics ? createMetricsSample(originalStatistics, columnTypes) : null;
+  console.log("No Version", featureSet);
+  console.log("With Version", featureSetOriginal);
+    // Subtract original from quality
+  useEffect(() => {
+    if (qualityMetrics && originalQualityMetrics && qualityMetrics != originalQualityMetrics) {
+      const metricChanges = Object?.keys(originalQualityMetrics).reduce((a, k) => {
+        a[k] = originalQualityMetrics[k] - qualityMetrics[k];
+        console.log(a);
+        return a;
+      }, {});
+      console.log(metricChanges);
+    }
+  }, [originalQualityMetrics, qualityMetrics, showColumnsFromUrl]);
+
   const statSample = (statistics && columnTypes)
     ? createStatisticsSample(statistics, columnTypes)
     : null;

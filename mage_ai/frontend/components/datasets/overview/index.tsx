@@ -58,7 +58,9 @@ type DatasetOverviewProps = {
 
 function DatasetOverview({
   featureSet,
+  featureSetOriginal,
   fetchFeatureSet,
+  fetchFeatureSetOriginal,
   selectedColumnIndex,
 }: DatasetOverviewProps) {
   const refLoadingBar = useRef(null);

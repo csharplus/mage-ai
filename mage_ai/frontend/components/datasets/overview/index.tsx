@@ -60,7 +60,6 @@ function DatasetOverview({
   featureSet,
   featureSetOriginal,
   fetchFeatureSet,
-  fetchFeatureSetOriginal,
   selectedColumnIndex,
 }: DatasetOverviewProps) {
   const refLoadingBar = useRef(null);
@@ -70,6 +69,7 @@ function DatasetOverview({
   const windowWidthPrevious = usePrevious(windowWidth);
 
   const [errorMessages, setErrorMessages] = useState(null);
+  const [changes, setChanges] = useState({});
   const qFromUrl = queryFromUrl();
   const {
     show_columns: showColumnsFromUrl,
@@ -109,9 +109,7 @@ function DatasetOverview({
   } = featureSet || {};
 
   const {
-    originalInsights,
-    originalMetadata,
-    originalStatistics,
+    statistics: originalStatistics,
   } = featureSetOriginal || {};
 
   const {
@@ -139,22 +137,23 @@ function DatasetOverview({
   const features: FeatureType[] = Object.entries(featureSet?.metadata?.column_types || {})
     .map(([k, v]: [string, ColumnTypeEnum]) => ({ columnType: v, uuid: k }));
 
-  const qualityMetrics = statistics ? createMetricsSample(statistics, columnTypes) : null;
-  const originalQualityMetrics = originalStatistics ? createMetricsSample(originalStatistics, columnTypes) : null;
-  console.log("No Version", featureSet);
-  console.log("With Version", featureSetOriginal);
-    // Subtract original from quality
+  // Subtract original from quality
   useEffect(() => {
-    if (qualityMetrics && originalQualityMetrics && qualityMetrics != originalQualityMetrics) {
-      const metricChanges = Object?.keys(originalQualityMetrics).reduce((a, k) => {
-        a[k] = originalQualityMetrics[k] - qualityMetrics[k];
-        console.log(a);
+    if (statistics && originalStatistics) {
+      let result;
+      const metricChanges = Object.keys(originalStatistics).reduce((a, k) => {
+        result = originalStatistics[k] - statistics[k];
+        if (result > 0) {
+          a[k] = result;
+        }
         return a;
       }, {});
-      console.log(metricChanges);
+      setChanges(metricChanges);
     }
-  }, [originalQualityMetrics, qualityMetrics, showColumnsFromUrl]);
+  }, [originalStatistics, showColumnsFromUrl, statistics]);
 
+  // TODO: Add keys that match in metricChanges to what's in the quality metrics at the end of the array.
+  const qualityMetrics = statistics ? createMetricsSample(statistics, columnTypes) : null;
   const statSample = (statistics && columnTypes)
     ? createStatisticsSample(statistics, columnTypes)
     : null;
@@ -232,6 +231,7 @@ function DatasetOverview({
     <DatasetDetail
       columnsVisible={columnsVisible}
       featureSet={featureSet}
+      featureSetOriginal={featureSetOriginal}
       fetchFeatureSet={fetchFeatureSet}
       hideColumnsHeader={windowWidth < LARGE_WINDOW_WIDTH}
       mainContentRef={mainContentRef}

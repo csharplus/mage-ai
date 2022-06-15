@@ -124,6 +124,21 @@ function DatasetOverview({
     validity,
   } = overallStats;
 
+  // Subtract original from quality
+  useEffect(() => {
+    if (statistics && originalStatistics) {
+      let result;
+      const metricChanges = Object.keys(originalStatistics).reduce((a, k) => {
+        result = originalStatistics[k] - statistics[k];
+        if (result > 0) {
+          a[k] = result;
+        }
+        return a;
+      }, {});
+      setChanges(metricChanges);
+    }
+  }, [originalStatistics, showColumnsFromUrl, statistics]);
+
   const qualityMetrics: StatRow[] = [
     {
       name: 'Validity',
@@ -133,6 +148,7 @@ function DatasetOverview({
         compare: lessThan,
         val: 0.8,
       },
+      change: changes['validity'],
     },
     {
       name: 'Completeness',
@@ -142,6 +158,7 @@ function DatasetOverview({
         compare: lessThan,
         val: 0.8,
       },
+      change: changes['completeness'],
     },
     {
       name: 'Empty columns',
@@ -150,6 +167,7 @@ function DatasetOverview({
         compare: greaterThan,
         val: 0,
       },
+      change: changes['emptyColumnCount'],
     },
     {
       name: 'Missing cells',
@@ -158,6 +176,7 @@ function DatasetOverview({
         compare: greaterThan,
         val: 0,
       },
+      change: changes['totalNullValueCount'],
     },
     {
       name: 'Invalid cells',
@@ -166,14 +185,16 @@ function DatasetOverview({
         compare: greaterThan,
         val: 0,
       },
+      change: changes['totalInvalidValueCount'],
     },
     {
       name: 'Duplicate rows',
-      value: validity,
+      value: duplicateRowCount,
       warning: {
         compare: greaterThan,
         val: 0,
       },
+      change: changes['duplicateRowCount'],
     },
   ];
 
@@ -202,21 +223,7 @@ function DatasetOverview({
   const features: FeatureType[] = Object.entries(featureSet?.metadata?.column_types || {})
     .map(([k, v]: [string, ColumnTypeEnum]) => ({ columnType: v, uuid: k }));
 
-  // Subtract original from quality
-  useEffect(() => {
-    if (statistics && originalStatistics) {
-      let result;
-      const metricChanges = Object.keys(originalStatistics).reduce((a, k) => {
-        result = originalStatistics[k] - statistics[k];
-        if (result > 0) {
-          a[k] = result;
-        }
-        return a;
-      }, {});
-      setChanges(metricChanges);
-    }
-  }, [originalStatistics, showColumnsFromUrl, statistics]);
-
+  
   // TODO: Add keys that match in metricChanges to what's in the quality metrics at the end of the array.
   // const qualityMetrics = statistics ? createMetricsSample(statistics, columnTypes) : null;
   const statSample = (statistics && columnTypes)

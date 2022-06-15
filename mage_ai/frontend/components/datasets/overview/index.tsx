@@ -119,6 +119,7 @@ function DatasetOverview({
     completeness,
     count: totalCount,
     duplicate_row_count: duplicateRowCount,
+    duplicate_row_rate: duplicateRowRate,
     empty_column_count: emptyColumnCount,
     empty_column_rate: emptyColumnRate,
     total_invalid_value_count: totalInvalidValueCount,
@@ -143,7 +144,6 @@ function DatasetOverview({
     }
   }, [originalStatistics, showColumnsFromUrl, statistics]);
 
-  console.log(changes, changes['empty_column_count']);
   const qualityMetrics: StatRow[] = [
     {
       name: 'Validity',
@@ -175,7 +175,7 @@ function DatasetOverview({
         compare: greaterThan,
         val: 0,
       },
-      change: changes['emptyColumnRate'],
+      change: changes['empty_column_rate'],
       flex: [2, 1, 2, 1],
     },
     {
@@ -186,7 +186,7 @@ function DatasetOverview({
         compare: greaterThan,
         val: 0,
       },
-      change: changes['totalNullValueRate'],
+      change: changes['total_null_value_rate'],
       flex: [2, 1, 2, 1],
     },
     {
@@ -197,16 +197,17 @@ function DatasetOverview({
         compare: greaterThan,
         val: 0,
       },
-      change: changes['totalInvalidValueRate'],
+      change: changes['total_invalid_value_rate'],
     },
     {
       name: 'Duplicate rows',
       value: duplicateRowCount,
+      rate: duplicateRowRate,
       warning: {
         compare: greaterThan,
         val: 0,
       },
-      change: changes['duplicateRowCount'],
+      change: changes['duplicate_row_rate'],
     },
   ];
 

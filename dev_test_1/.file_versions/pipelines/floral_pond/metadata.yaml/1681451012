@@ -1,0 +1,27 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: clickhouse
+    data_provider_profile: default
+    data_provider_schema: ''
+    export_write_policy: replace
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: bitter river
+  status: updated
+  type: data_loader
+  upstream_blocks: []
+  uuid: bitter_river
+data_integration: null
+description: null
+extensions: {}
+name: floral pond
+type: python
+updated_at: '2023-04-14 05:43:32'
+uuid: floral_pond
+widgets: []
